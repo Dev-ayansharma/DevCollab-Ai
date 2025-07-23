@@ -26,7 +26,7 @@ console.log("🔍 MONGO_URI:", process.env.MONGO_URI);
 app.use("/auth",userRoutes)
 app.use("/ticket",ticketRoutes)
 
-app.use("/inngest",serve({
+app.use("/api/inngest",serve({
   client: inngest,
   functions: [onSignup, onTicketCreate],
 }))

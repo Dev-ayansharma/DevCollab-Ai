@@ -2,6 +2,7 @@ import { inngest } from "../inngest/client.js";
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import Ticket from '../models/ticket.js'
  
 export const signupUser = async (req, res) => {
     const { email, password,skills=[],role} = req.body;
@@ -115,6 +116,7 @@ export const updateUser = async (req, res) => {
         },
       ]
     );
+    
 
     return res.json({ message: "User updated successfully using pipeline" });
   } catch (error) {
@@ -125,5 +127,42 @@ export const updateUser = async (req, res) => {
   }
 };
 
+export const getuser = async(req,res)=>{
+      try {
+        const user = await User.findById(req.user._id).select("email skills createdAt updatedAt")
+        if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
+     return res.json(user);
+      } catch (error) {
+         return res.status(500).json({
+      error: "Internal server error in gettingUser",
+      details: error.message,
+    });
+      }
+}
+
+
+export const completestatus = async(req,res) =>{
+  
+         const mid = req.params.mid
+    const decodedid= decodeURIComponent(mid)
+    
+
+    try {
+       const ticket = await Ticket.findById(decodedid);
+  if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
+
+  ticket.status = 'COMPLETED';
+  await ticket.save();
+     return res.status(200).json(ticket);
+    } catch (error) {
+        console.error("Error creating ticket:", error);
+    return res
+      .status(500)
+      .json({ error: "Internal server error while geetiing tickets",details:error.message});
+  
+    }
+}
 

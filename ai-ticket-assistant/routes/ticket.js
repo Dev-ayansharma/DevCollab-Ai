@@ -1,6 +1,6 @@
 import express from "express";
 import { authMiddleware } from "../middleware/auth.js";
-import { createTicket, getassignedTickets, getuserTicketbyid, getuserTickets } from "../controller/ticket.js";
+import { createTicket, getassignedTickets, getmoderatorTicketbyid, getuserTicketbyid, getuserTickets } from "../controller/ticket.js";
 
 const router = express.Router();
 
@@ -23,11 +23,20 @@ router.get(
 
 
 
+
+
 router.get(
     "/:id",
     authMiddleware,
     getuserTicketbyid
 )
+
+router.get(
+    "/moderator/:mid",
+    authMiddleware,
+     getmoderatorTicketbyid
+)
+
 
 
 export default router;

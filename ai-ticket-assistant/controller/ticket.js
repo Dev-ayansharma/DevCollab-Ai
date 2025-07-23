@@ -66,20 +66,46 @@ export const getuserTickets = async (req, res) => {
     }
 }
 
-export const getuserTicketbyid = async (req, res) => {
-    const id = req.params.id
-    const decodedid= decodeURIComponent(id)
+export const getmoderatorTicketbyid = async (req, res) => {
+    const mid = req.params.mid
+    const decodedid= decodeURIComponent(mid)
     try {
         
       
-          const ticket = await Ticket.findOne({ _id: decodedid, createdBy: req.user._id }).select("title desciption status createdAt updatedAt");
+          const ticket = await Ticket.findOne({ _id: decodedid, assignedTo: req.user._id }).select("title description status priority helpfulNotes relatedSkills assignedTo createdBy createdAt updatedAt");
+         
         
         if (!ticket) {
             return res.status(404).json({ error: "Ticket not found" });
         }
         return res.status(200).json(ticket);
     } catch (error) {
+         console.error("Error creating ticket:", error);
+    return res
+      .status(500)
+      .json({ error: "Internal server error while getting tickets",details:error.message});
+  
+    }
+}
+
+export const getuserTicketbyid = async (req, res) => {
+    const id = req.params.id
+    const decodedid= decodeURIComponent(id)
+    try {
         
+      
+          const ticket = await Ticket.findOne({ _id: decodedid, createdBy: req.user._id }).select("title description status helpfulNotes priority relatedSkills createdBy assignedTo createdAt updatedAt");
+        
+        if (!ticket) {
+            return res.status(404).json({ error: "Ticket not found" });
+        }
+        return res.status(200).json(ticket);
+    } catch (error) {
+         console.error("Error creating ticket:", error);
+    return res
+      .status(500)
+      .json({ error: "Internal server error while getting tickets",details:error.message});
+  
     }
 }
 
@@ -101,3 +127,4 @@ export const getassignedTickets = async (req, res) => {
         return res.status(500).json({ error: "Internal server error while fetching assigned tickets" });
     }
 }
+

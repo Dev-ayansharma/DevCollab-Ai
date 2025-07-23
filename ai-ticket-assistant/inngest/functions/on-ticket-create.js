@@ -46,29 +46,39 @@ export const onTicketCreate = inngest.createFunction(
         })
 
 
-        const moderator = await step.run("assign-ticket", async () => {
+const moderator = await step.run("assign-ticket", async () => {
+  if (relatedSkills.length === 0) {
+    // No skills found by AI, cancel the ticket
+    await Ticket.findByIdAndUpdate(ticket._id, {
+      status: "CANCELLED",
+      helpfulNotes: (airesponse && airesponse.helpfulNotes) || "AI could not determine skills.",
+    });
+    throw new NonRetriableError("No skills detected from AI response. Ticket cancelled.");
+  }
 
-          const regexSkills = relatedSkills.map(skill => new RegExp(skill, 'i'));
-          if (!relatedSkills.length) {
-  throw new NonRetriableError("No skills detected from AI response");
-}
-let user = await User.findOne({
-  role: 'moderator',
-  skills: { $in: regexSkills }
+  const regexSkills = relatedSkills.map(skill => new RegExp(skill, 'i'));
+  const user = await User.findOne({
+    role: 'moderator',
+    skills: { $in: regexSkills }
+  });
+
+  if (!user) {
+    // No moderator found with those skills, cancel the ticket
+    await Ticket.findByIdAndUpdate(ticket._id, {
+      status: "CANCELLED",
+      helpfulNotes: (airesponse && airesponse.helpfulNotes) || "No moderator available with required skills.",
+    });
+    throw new NonRetriableError("No moderator found with the required skills. Ticket cancelled.");
+  }
+
+  // Assign moderator to ticket
+  await Ticket.findByIdAndUpdate(ticket._id, {
+    assignedTo: user._id,
+  });
+
+  return user;
 });
 
-
-            if (!user) {
-                  throw new NonRetriableError('No moderator found with the required skills')
-            }
-
-            await Ticket.findByIdAndUpdate(ticket._id, {
-                assignedTo: user ? user._id : null,
-
-            })
-
-            return user ? user : null
-        })
 
         await step.run("notify-assigned-user", async () => {
             if (moderator) {

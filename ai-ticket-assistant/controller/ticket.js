@@ -72,7 +72,7 @@ export const getmoderatorTicketbyid = async (req, res) => {
     try {
         
       
-          const ticket = await Ticket.findOne({ _id: decodedid, assignedTo: req.user._id }).select("title description status priority helpfulNotes relatedSkills assignedTo createdBy createdAt updatedAt");
+          const ticket = await Ticket.findOne({ _id: decodedid, assignedTo: req.user._id }).select("title description status priority helpfulNotes relatedSkills assignedTo createdBy createdAt updatedAt").populate('createdBy', 'email');
          
         
         if (!ticket) {
@@ -94,7 +94,7 @@ export const getuserTicketbyid = async (req, res) => {
     try {
         
       
-          const ticket = await Ticket.findOne({ _id: decodedid, createdBy: req.user._id }).select("title description status helpfulNotes priority relatedSkills createdBy assignedTo createdAt updatedAt");
+          const ticket = await Ticket.findOne({ _id: decodedid, createdBy: req.user._id }).select("title description status helpfulNotes priority relatedSkills createdBy assignedTo createdAt updatedAt").populate('assignedTo', 'email');
         
         if (!ticket) {
             return res.status(404).json({ error: "Ticket not found" });

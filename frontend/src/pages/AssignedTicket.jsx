@@ -245,12 +245,12 @@ const AssignedTicket = () => {
                   </div>
                 )}
 
-                {ticket.assignedTo && (
+                {ticket.createdBy && (
                   <div className="flex items-start space-x-3">
                     <User className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Assigned To</p>
-                      <p className="text-gray-900">Moderator</p>
+                      <p className="text-sm font-medium text-gray-600">Given By</p>
+                      <p className="text-gray-900">{ticket.createdBy.email}</p>
                     </div>
                   </div>
                 )}
